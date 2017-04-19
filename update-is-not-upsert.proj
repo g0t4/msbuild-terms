@@ -1,0 +1,16 @@
+<Project>
+
+  <ItemGroup>
+    <MyFiles Include="files/*.txt" />
+    <!-- update does not add, it only modifies existing... its not an upsert-->
+    <MyFiles Update="files/**" MyMeta="AddToFiles" />
+
+    <IncludeAll Include="files/**" MyMeta="AddToFiles" />
+  </ItemGroup>
+
+  <Target Name="PrintItems">
+    <Message Text="%0AMyFiles:%0A@(MyFiles->'%(Identity) %(MyMeta)','%0A')" Importance="high" />
+    <Message Text="%0AIncludeAll:%0A@(IncludeAll->'%(Identity) %(MyMeta)','%0A')" Importance="high" />
+  </Target>
+
+</Project>
