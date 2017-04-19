@@ -1,0 +1,88 @@
+<Project>
+
+  <ItemGroup>
+    <!-- * searches for 0 or more characters except '/' - so basically within the directory -->
+    <!-- FYI ? allows for any one character -->
+    <AllFilesNotNested Include="files/*" />
+    <!-- ** searches directories recursively - essentially like * plus matches '/' -->
+    <AllFilesNested Include="files/**" />
+    
+    <!-- ** recursive search + *.txt for any text file -->
+    <AllTextFiles Include="files/**/*.txt" />
+    <!-- Exclude modifies the include list -->
+    <ExcludeTextFromAllFiles Include="files/**" Exclude="**/*.txt"/>
+
+    <!-- Use remove to take out files after the fact, remove is a deferred exclude but also operates on whole list instead of just one include operation -->
+    <RemoveTextFromAllFiles Include="files/**"/>
+    <RemoveTextFromAllFiles Remove="**/*.txt"/>
+
+    <!-- items don't have to be files -->
+    <ItemsAreNotJustForFiles Include="a;b;c;d;e;z" Exclude="d;e" />
+    <ItemsAreNotJustForFiles Include="f;g;h" />
+    <ItemsAreNotJustForFiles Remove="z" />
+
+    <TextFilesWithCustomMetadata Include="files/a.txt">
+      <MyCustomMetadata>OldWayToAddMetadataAsElement</MyCustomMetadata>
+    </TextFilesWithCustomMetadata>
+    <TextFilesWithCustomMetadata Include="files/b.txt" MyCustomMetadata="NewWayToAddMetadataAsAttributeInMSBuild15" />
+
+    <AddMetadataAfterInclude Include="files/a.txt" />
+    <AddMetadataAfterInclude Include="files/b.txt" />
+    <AddMetadataAfterInclude Include="files/a.cs" />
+    <AddMetadataAfterInclude Update="files/*.txt" MyMeta="UpdatedMetadataTxtOnly" />
+    <AddMetadataAfterInclude Update="files/a.txt" MyATxtOnlyMeta="ATxtOnlyUpdated" />
+
+    <OrderMatters Include="files/a.txt" />
+    <OrderMatters Update="files/*.txt" MyMeta="UpdatedBeforeBAdded" />
+    <OrderMatters Include="files/b.txt" />
+
+  </ItemGroup>
+
+
+  <Target Name="PrintItems">
+
+    <Message Text="AllFilesNotNested @(AllFilesNotNested->Count()): @(AllFilesNotNested)" Importance="high" />
+    <Message Text="AllFilesNested @(AllFilesNested->Count()): @(AllFilesNested)" Importance="high" />
+    <Message Text="AllTextFiles @(AllTextFiles->Count()): @(AllTextFiles)" Importance="high" />
+    <Message Text="ExcludeTextFromAllFiles @(ExcludeTextFromAllFiles->Count()): @(ExcludeTextFromAllFiles)" Importance="high" />
+    <Message Text="RemoveTextFromAllFiles @(RemoveTextFromAllFiles->Count()): @(RemoveTextFromAllFiles)" Importance="high" />
+    <Message Text="ItemsAreNotJustForFiles @(ItemsAreNotJustForFiles->Count()): @(ItemsAreNotJustForFiles)" Importance="high" />
+
+    <!-- the Include must be a path for file metadata to be applied -->
+    <!-- see syntax here for accessing metadata, which is an item transformation -->
+    <!-- also RecursiveDir used here is useful for relative copying with globs -->
+    <Message Text="Files have well known metadata attached like recursive dir: @(AllFilesNested->'%(RecursiveDir)')" Importance="high" />
+    <Message Text="But non file items do not have file metadata @(ItemsAreNotJustForFiles->'%(RecursiveDir)')" Importance="high" />
+    
+    <Message Text="Custom metadata: @(TextFilesWithCustomMetadata->'%(MyCustomMetadata)')" Importance="high" />
+    <Message Text="Updated metadata: @(AddMetadataAfterInclude) @(AddMetadataAfterInclude->'%(MyMeta)')" Importance="high" />
+    <Message Text="Updated metadata a txt only: @(AddMetadataAfterInclude) @(AddMetadataAfterInclude->'%(MyATxtOnlyMeta)')" Importance="high" />
+    
+    <Message Text="OrderMatters: @(OrderMatters) @(OrderMatters->'%(MyMeta)')" Importance="high" />
+
+    <!-- Dynamic items order matters in terms of task execution interleaved - list is used as is when task runs, subsequent tasks can have diff lists - a good thing just like in a squential programming language -->
+    <ItemGroup> 
+      <MyDynamicItems Include="files/*.txt" />
+    </ItemGroup>
+    <Message Text="MyDynamicItems: @(MyDynamicItems)" Importance="high" />
+    <ItemGroup> 
+      <MyDynamicItems Include="files/*.cs" />
+    </ItemGroup>
+    <Message Text="MyDynamicItems: @(MyDynamicItems)" Importance="high" />
+
+  </Target>
+  <Target Name="Print2" AfterTargets="PrintItems">
+    <Message Text="MyDynamicItems - passed between targets: @(MyDynamicItems)" Importance="high" />
+    <PropertyGroup>
+      <DynamicDestination>/path/to/new/dir/</DynamicDestination>
+    </PropertyGroup>
+    <!-- In a transformation you can build up any string you want with properties $(), metdata %() and plain text-->
+    <Message Text="Transform: @(AllFilesNested) to @(AllFilesNested->'$(DynamicDestination)%(RecursiveDir)%(Filename)%(Extension).bak')" Importance="high" />
+  </Target>
+
+  <Target Name="CopyFile" AfterTargets="Print2">
+    
+  </Target>
+
+
+</Project>

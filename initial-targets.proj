@@ -1,0 +1,13 @@
+<!-- run this with 
+    dotnet msbuild initial-targets.proj
+
+-->
+<Project InitialTargets="CheckAllIsOK">
+  
+  <Target Name="CheckAllIsOk">
+    <Message 
+        Text="This always runs before requested targets run, use this as a sanity check to make sure the build can be run." 
+        Importance="high" />
+  </Target>
+  
+</Project>
