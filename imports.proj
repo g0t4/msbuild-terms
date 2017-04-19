@@ -1,0 +1,32 @@
+<Project>
+  <!-- run dotnet msbuild imports.proj -->
+  <!-- then dotnet msbuild imports.proj /pp to see logical result -->
+
+  <!-- properties and imports are simultaneously evaluated in order -->
+  <!-- at this point PropA is not set so this import won't be included -->
+  <Import Project="import-notreal.props" Condition="$(PropA) != ''" />
+  <PropertyGroup>
+    <PropA>A</PropA>
+    <Replaced>Original</Replaced>
+  </PropertyGroup>
+  <!-- this import will be included -->
+  <Import Project="import-child.props" Condition="$(PropA) != ''" />
+  <PropertyGroup>
+    <AddToChildProp>$(AddToChildProp)-added</AddToChildProp>
+  </PropertyGroup>
+  <Target Name="PrintInfo">
+      <Message Text="PropA: $(PropA)" Importance="high" />
+      <Message Text="ImportedPropA: $(ImportedPropA)" Importance="high" />
+      <Message Text="Replaced: $(Replaced)" Importance="high" />
+      <Message Text="AddToChildProp: $(AddToChildProp)" Importance="high" />
+      <Message Text="MyItems count: @(MyItems->Count())" Importance="high" />
+  </Target>
+
+  <!-- Items are not evaluabled before imports & props, so you can't use items for import conditions, you'll get a warning if you uncomment these imports -->
+  <!--<Import Project="import-notreal.proj" Condition="@(MyItems->Count()) > 0" />-->
+  <ItemGroup>
+    <MyItems Include="whatever" />
+  </ItemGroup>
+  <!--<Import Project="import-notreal.proj" Condition="@(MyItems->Count()) > 0" />-->
+
+</Project>

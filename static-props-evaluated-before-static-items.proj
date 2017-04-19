@@ -1,0 +1,20 @@
+<Project>
+
+  <!-- Static properties are evaluated before static items, separate passess. So, ItemB will have ValueA but PropB won't -->
+  <PropertyGroup>
+    <PropB>$(PropA)</PropB>
+  </PropertyGroup>
+  <ItemGroup>
+    <ItemB Include="$(PropA)" />
+  </ItemGroup>
+  <PropertyGroup>
+    <PropA>ValueA</PropA>
+  </PropertyGroup>
+
+  <Target Name="PrintItems">
+    <Message Text="PropA: $(PropA)" Importance="high" />
+    <Message Text="PropB: $(PropB)" Importance="high" />
+    <Message Text="ItemB: @(ItemB)" Importance="high" />
+  </Target>
+
+</Project>

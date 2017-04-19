@@ -1,0 +1,37 @@
+<!-- run with and without setting PrintInfo to true-->
+<!-- dotnet msbuild target-hooks-always-run.proj /p:PrintInfo=true -->
+<Project>
+  
+  <PropertyGroup>
+    <PrintInfo>false</PrintInfo>
+  </PropertyGroup>
+
+  <Target Name="Print" Condition="$(PrintInfo)">
+    <Message 
+        Text="This is print" 
+        Importance="high" />
+  </Target>
+
+  <Target Name="BeforePrinting" BeforeTargets="Print">
+    <Message 
+        Text="This always runs before Print, even if Print doesn't run" 
+        Importance="high" />
+  </Target>
+
+ 
+  <Target Name="AfterPrinting" AfterTargets="Print">
+    <Message 
+        Text="This always runs after Print, even if Print doesn't run" 
+        Importance="high" />
+  </Target>
+
+  <!-- have to duplicate condition for Print here -->
+  <Target Name="AfterPrintingOnlyIfPrinting" AfterTargets="Print" Condition="$(PrintInfo)">
+    <Message 
+        Text="This only runs after Print if Print runs" 
+        Importance="high" />
+  </Target>
+
+
+  
+</Project>

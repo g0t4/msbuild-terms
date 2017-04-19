@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <ImportedPropA>I am imported</ImportedPropA>
+    <Replaced>I am replaced</Replaced>
+    <AddToChildProp>ChildValue</AddToChildProp>
+  </PropertyGroup>
+</Project>
